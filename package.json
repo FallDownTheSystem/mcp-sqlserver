@@ -12,6 +12,7 @@
     "README.md",
     "LICENSE",
     "INSTALL.md",
+    "QUICK-START.md",
     "examples"
   ],
   "scripts": {

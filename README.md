@@ -4,23 +4,67 @@ A read-only Model Context Protocol (MCP) server for Microsoft SQL Server that en
 
 ## Quick Start
 
-### Installation
+### Step 1: Install the Package
 
 ```bash
+# Global installation (recommended)
 npm install -g @bilims/mcp-sqlserver
+
+# Verify installation
+mcp-sqlserver --version
 ```
 
-### Configuration
+### Step 2: Configure Your SQL Server Connection
 
-1. **Set up environment variables:**
+Choose your SQL Server type and follow the configuration:
+
+#### Azure SQL Database
 ```bash
 export SQLSERVER_HOST="your-server.database.windows.net"
 export SQLSERVER_USER="your-username"
 export SQLSERVER_PASSWORD="your-password"
 export SQLSERVER_DATABASE="your-database"
+export SQLSERVER_ENCRYPT="true"
+export SQLSERVER_TRUST_CERT="false"
 ```
 
-2. **Add to Claude Desktop:**
+#### On-Premises SQL Server
+```bash
+export SQLSERVER_HOST="your-sql-server.company.com"
+export SQLSERVER_USER="your-username"
+export SQLSERVER_PASSWORD="your-password"
+export SQLSERVER_DATABASE="your-database"
+export SQLSERVER_ENCRYPT="true"
+export SQLSERVER_TRUST_CERT="true"  # For self-signed certificates
+```
+
+#### Local SQL Server Express
+```bash
+export SQLSERVER_HOST="localhost\\SQLEXPRESS"
+export SQLSERVER_USER="sa"
+export SQLSERVER_PASSWORD="your-password"
+export SQLSERVER_DATABASE="master"
+export SQLSERVER_ENCRYPT="false"
+export SQLSERVER_TRUST_CERT="true"
+```
+
+### Step 3: Test the Connection
+
+```bash
+# Test your configuration
+mcp-sqlserver --help
+
+# Quick connection test (press Ctrl+C to exit)
+mcp-sqlserver
+```
+
+### Step 4: Add to Claude Desktop
+
+1. **Find your Claude Desktop config file:**
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+2. **Add the MCP server configuration:**
 ```json
 {
   "mcpServers": {
@@ -30,18 +74,25 @@ export SQLSERVER_DATABASE="your-database"
         "SQLSERVER_HOST": "your-server.database.windows.net",
         "SQLSERVER_USER": "your-username",
         "SQLSERVER_PASSWORD": "your-password",
-        "SQLSERVER_DATABASE": "your-database"
+        "SQLSERVER_DATABASE": "your-database",
+        "SQLSERVER_ENCRYPT": "true",
+        "SQLSERVER_TRUST_CERT": "false"
       }
     }
   }
 }
 ```
 
-3. **Test the connection:**
-```bash
-# Set your environment variables first
-mcp-sqlserver
-```
+3. **Restart Claude Desktop**
+
+### Step 5: Start Exploring!
+
+Try these commands in Claude Desktop:
+- `"Test the SQL Server connection"`
+- `"List all databases on the server"`
+- `"Show me the tables in [database name]"`
+- `"Describe the structure of the Users table"`
+- `"Show me foreign key relationships"`
 
 ## Features
 
@@ -66,6 +117,41 @@ mcp-sqlserver
 ### Data Exploration  
 - `execute_query` - Execute read-only SELECT queries with safety validation
 - `get_server_info` - Get SQL Server version, edition, and configuration details
+
+## Common Commands for Claude Desktop
+
+Once your MCP server is configured, try these natural language commands:
+
+### Getting Started Commands
+```
+"Test the SQL Server connection"
+"Show me server information"
+"List all databases on this server"
+"What tables are in the [database name] database?"
+```
+
+### Database Exploration
+```
+"Describe the structure of the Users table"
+"Show me foreign key relationships in this database"
+"What are the largest tables by row count?"
+"Give me a sample of data from the Orders table"
+```
+
+### Advanced Analysis
+```
+"Help me understand the relationship between Orders and Customers"
+"Show me all lookup tables in this database"
+"What columns contain date/time information?"
+"Find tables that might contain user authentication data"
+```
+
+### Custom Queries
+```
+"Run this query: SELECT TOP 10 * FROM Products WHERE Price > 100"
+"Show me all customers created in the last 30 days"
+"What are the different product categories in the database?"
+```
 
 ## Installation
 

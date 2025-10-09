@@ -1,6 +1,110 @@
-# Usage Examples
+# Usage Examples & Getting Started Guide
 
-This document provides examples of how to use the MCP SQL Server tools through different AI clients.
+This document provides practical examples of how to use the MCP SQL Server tools through different AI clients, with real-world scenarios and step-by-step workflows.
+
+## Table of Contents
+- [First Time Setup](#first-time-setup)
+- [Basic Database Exploration](#basic-database-exploration)
+- [Advanced Analysis Workflows](#advanced-analysis-workflows)
+- [Tool Reference](#tool-reference)
+- [Common Use Cases](#common-use-cases)
+- [Troubleshooting](#troubleshooting)
+
+## First Time Setup
+
+### 1. Installation and Basic Test
+```bash
+# Install the package globally
+npm install -g @bilims/mcp-sqlserver
+
+# Verify installation
+mcp-sqlserver --version  # Should show 2.0.0
+
+# Check available tools
+mcp-sqlserver --help
+```
+
+### 2. Configuration for Different Environments
+
+#### Azure SQL Database Setup
+```json
+{
+  "mcpServers": {
+    "sqlserver": {
+      "command": "mcp-sqlserver",
+      "env": {
+        "SQLSERVER_HOST": "mycompany.database.windows.net",
+        "SQLSERVER_USER": "myuser@mycompany",
+        "SQLSERVER_PASSWORD": "MySecurePassword123!",
+        "SQLSERVER_DATABASE": "ProductionDB",
+        "SQLSERVER_ENCRYPT": "true",
+        "SQLSERVER_TRUST_CERT": "false"
+      }
+    }
+  }
+}
+```
+
+#### On-Premises SQL Server Setup
+```json
+{
+  "mcpServers": {
+    "sqlserver": {
+      "command": "mcp-sqlserver",
+      "env": {
+        "SQLSERVER_HOST": "sql-server.company.local",
+        "SQLSERVER_USER": "db_reader",
+        "SQLSERVER_PASSWORD": "ReadOnlyPassword123",
+        "SQLSERVER_DATABASE": "CompanyDB",
+        "SQLSERVER_ENCRYPT": "true",
+        "SQLSERVER_TRUST_CERT": "true"
+      }
+    }
+  }
+}
+```
+
+### 3. First Connection Test
+Once configured in Claude Desktop, try:
+```
+"Test the SQL Server connection and show me server information"
+```
+
+## Basic Database Exploration
+
+### Starting Your Database Discovery Journey
+
+#### Step 1: Server Overview
+```
+"What SQL Server am I connected to? Show me server information and available databases."
+```
+
+#### Step 2: Database Structure
+```
+"List all tables in the [DatabaseName] database and show me how many rows each table has."
+```
+
+#### Step 3: Table Relationships
+```
+"Show me all foreign key relationships in this database to understand how tables are connected."
+```
+
+#### Step 4: Table Deep Dive
+```
+"Describe the structure of the [TableName] table, including all columns, data types, and constraints."
+```
+
+### Sample Conversation Flow
+```
+User: "I'm new to this database. Can you help me understand its structure?"
+
+AI: I'll help you explore the database structure step by step. Let me start by testing the connection and getting basic information.
+
+User: "Test the SQL Server connection"
+User: "List all databases on the server"
+User: "Show me tables in the main database"
+User: "What are the foreign key relationships between these tables?"
+```
 
 ## Tool Examples
 
@@ -204,76 +308,110 @@ This document provides examples of how to use the MCP SQL Server tools through d
 }
 ```
 
-## Common Use Cases
+## Advanced Analysis Workflows
 
-### Database Schema Exploration
-```javascript
-// 1. List all databases
-const databases = await callTool("list_databases", {});
-
-// 2. For each database, list tables  
-const tables = await callTool("list_tables", { schema: "dbo" });
-
-// 3. Get detailed schema for important tables
-const userSchema = await callTool("describe_table", { 
-  table_name: "Users", 
-  schema: "dbo" 
-});
-
-// 4. Understand relationships
-const foreignKeys = await callTool("get_foreign_keys", {});
+### 1. Complete Database Discovery Workflow
+```
+"I need to understand this database completely. Please help me discover:
+1. What SQL Server version and edition we're using
+2. All available databases and their sizes
+3. The main tables and their relationships
+4. Sample data from the most important tables"
 ```
 
-### Data Analysis
-```javascript
-// Get table statistics to understand data volume
-const stats = await callTool("get_table_stats", {});
-
-// Sample data from key tables
-const sampleUsers = await callTool("execute_query", {
-  query: "SELECT TOP 10 * FROM Users ORDER BY CreatedDate DESC",
-  limit: 10
-});
-
-// Analyze data patterns
-const usersByStatus = await callTool("execute_query", {
-  query: "SELECT Status, COUNT(*) as Count FROM Users GROUP BY Status",
-  limit: 100
-});
+### 2. Data Quality Analysis
+```
+"Help me analyze data quality by:
+1. Finding all tables with more than 10,000 rows
+2. Showing me tables with foreign key relationships
+3. Looking for any tables that might be lookup/reference tables
+4. Getting a sample of data from the largest tables"
 ```
 
-### Finding Related Data
-```javascript
-// Find all tables related to a specific entity
-const orderTables = await callTool("execute_query", {
-  query: `
-    SELECT TABLE_NAME 
-    FROM INFORMATION_SCHEMA.TABLES 
-    WHERE TABLE_NAME LIKE '%Order%' 
-    AND TABLE_TYPE = 'BASE TABLE'
-  `
-});
+### 3. Schema Documentation Workflow
+```
+"I need to document this database schema:
+1. List all tables and views with their purposes
+2. Show all foreign key relationships in a clear format
+3. Describe the structure of each main table
+4. Identify the core business entities"
+```
 
-// Get foreign key relationships for understanding joins
-const relationships = await callTool("get_foreign_keys", {
-  table_name: "Orders"
-});
+## Real-World Use Cases
 
-// Find potential lookup tables (small reference tables)
-const lookupTables = await callTool("execute_query", {
-  query: `
-    SELECT 
-      t.TABLE_SCHEMA,
-      t.TABLE_NAME,
-      COUNT(c.COLUMN_NAME) as ColumnCount
-    FROM INFORMATION_SCHEMA.TABLES t
-    JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME
-    WHERE t.TABLE_TYPE = 'BASE TABLE'
-    GROUP BY t.TABLE_SCHEMA, t.TABLE_NAME
-    HAVING COUNT(c.COLUMN_NAME) <= 5
-    ORDER BY ColumnCount
-  `
-});
+### Business Analyst: Understanding Customer Data
+```
+User: "I need to understand our customer data structure for a new analytics project."
+
+Workflow:
+1. "Test the connection and show me server information"
+2. "List all databases and find the one containing customer data"
+3. "Show me all tables in the CustomerDB database"
+4. "Describe the structure of the Customers table"
+5. "What tables are related to the Customers table through foreign keys?"
+6. "Show me a sample of 10 recent customer records"
+7. "What are the different customer types or categories in our database?"
+```
+
+### Developer: API Integration Planning
+```
+User: "I'm building an API that needs to access order and product data."
+
+Workflow:
+1. "Show me all tables related to orders and products"
+2. "Describe the Orders table structure in detail"
+3. "What are the foreign key relationships for the Orders table?"
+4. "Show me the Products table structure"
+5. "How are orders and products connected in the database?"
+6. "Give me sample queries to get order details with product information"
+```
+
+### Data Scientist: Exploratory Data Analysis
+```
+User: "I need to understand the data patterns for a machine learning project."
+
+Workflow:
+1. "Show me statistics for all tables including row counts and sizes"
+2. "What are the largest tables in the database?"
+3. "Show me sample data from the main transaction tables"
+4. "Help me understand the relationships between entities"
+5. "What columns contain date/time information for tracking trends?"
+6. "Are there any lookup tables I should be aware of?"
+```
+
+## Common Troubleshooting Scenarios
+
+### Connection Issues
+```
+User: "I'm getting connection errors"
+
+Solution Steps:
+1. "Test the SQL Server connection" - Check basic connectivity
+2. Verify your environment variables in Claude Desktop config
+3. Check if server allows remote connections
+4. Verify firewall settings and network access
+```
+
+### Permission Issues
+```
+User: "I can connect but can't see some tables"
+
+Solution Steps:
+1. "List all databases" - See what you can access
+2. "Show me server information" - Verify connection details
+3. Check with your DBA about SELECT permissions
+4. Try different database or schema names
+```
+
+### Performance Issues
+```
+User: "Queries are running slowly"
+
+Solution Steps:
+1. Use smaller LIMIT values in execute_query
+2. "Get table statistics" to understand data volumes
+3. Focus on specific schemas rather than whole database
+4. Break complex queries into smaller parts
 ```
 
 ## Error Handling Examples
