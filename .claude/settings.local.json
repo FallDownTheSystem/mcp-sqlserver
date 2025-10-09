@@ -4,7 +4,8 @@
       "WebFetch(domain:spec.modelcontextprotocol.io)",
       "WebSearch",
       "Bash(npm install)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm publish:*)"
     ],
     "deny": [],
     "ask": []
