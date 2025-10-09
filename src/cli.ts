@@ -62,7 +62,7 @@ For more information, visit: https://github.com/bilims/mcp-sqlserver
 
 function showVersion() {
   // Read version from package.json
-  console.log('2.0.0');
+  console.log('2.0.1');
 }
 
 function validateEnvironment(): boolean {
