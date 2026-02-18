@@ -24,12 +24,17 @@ export class GetTableStatsTool extends BaseTool {
 					description: 'Schema name (optional, defaults to dbo)',
 					default: 'dbo',
 				},
+				database: {
+					type: 'string',
+					description: 'Target database name (optional, uses default if not specified)',
+				},
 			},
 			required: [],
 		};
 	}
 
-	async execute(params: { table_name?: string; schema?: string }): Promise<TableStats[]> {
+	async execute(params: { table_name?: string; schema?: string; database?: string }): Promise<TableStats[]> {
+		const database = params.database ? ParameterValidator.validateDatabaseName(params.database) : undefined;
 		const validatedParams = ParameterValidator.validateForeignKeyParameters({
 			...params,
 			schema: params.schema ?? 'dbo',
@@ -77,6 +82,6 @@ export class GetTableStatsTool extends BaseTool {
 			ORDER BY table_schema, table_name
 		`;
 
-		return await this.executeSafeQueryWithParams<TableStats>(query, queryParams);
+		return await this.executeSafeQueryWithParams<TableStats>(query, queryParams, database);
 	}
 }

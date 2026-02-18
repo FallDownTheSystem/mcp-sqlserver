@@ -19,12 +19,17 @@ export class ListTablesTool extends BaseTool {
 					type: 'string',
 					description: 'Schema name to filter tables (optional)',
 				},
+				database: {
+					type: 'string',
+					description: 'Target database name (optional, uses default if not specified)',
+				},
 			},
 			required: [],
 		};
 	}
 
-	async execute(params: { schema?: string }): Promise<TableInfo[]> {
+	async execute(params: { schema?: string; database?: string }): Promise<TableInfo[]> {
+		const database = params.database ? ParameterValidator.validateDatabaseName(params.database) : undefined;
 		const validatedParams = ParameterValidator.validateListTablesParameters(params);
 		const { schema } = validatedParams;
 
@@ -47,6 +52,6 @@ export class ListTablesTool extends BaseTool {
 
 		query += ' ORDER BY TABLE_SCHEMA, TABLE_NAME';
 
-		return await this.executeSafeQueryWithParams<TableInfo>(query, queryParams);
+		return await this.executeSafeQueryWithParams<TableInfo>(query, queryParams, database);
 	}
 }

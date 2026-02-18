@@ -24,12 +24,17 @@ export class GetForeignKeysTool extends BaseTool {
 					description: 'Schema name (optional, defaults to dbo)',
 					default: 'dbo',
 				},
+				database: {
+					type: 'string',
+					description: 'Target database name (optional, uses default if not specified)',
+				},
 			},
 			required: [],
 		};
 	}
 
-	async execute(params: { table_name?: string; schema?: string }): Promise<ForeignKeyInfo[]> {
+	async execute(params: { table_name?: string; schema?: string; database?: string }): Promise<ForeignKeyInfo[]> {
+		const database = params.database ? ParameterValidator.validateDatabaseName(params.database) : undefined;
 		const validatedParams = ParameterValidator.validateForeignKeyParameters({
 			...params,
 			schema: params.schema ?? 'dbo',
@@ -70,6 +75,6 @@ export class GetForeignKeysTool extends BaseTool {
 
 		query += ' ORDER BY table_schema, table_name, constraint_name';
 
-		return await this.executeSafeQueryWithParams<ForeignKeyInfo>(query, queryParams);
+		return await this.executeSafeQueryWithParams<ForeignKeyInfo>(query, queryParams, database);
 	}
 }

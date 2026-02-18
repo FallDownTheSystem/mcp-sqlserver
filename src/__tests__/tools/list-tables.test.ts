@@ -1,13 +1,17 @@
 import { ListTablesTool } from '../../tools/list-tables.js';
-import { SqlServerConnection } from '../../connection.js';
+import { ConnectionManager } from '../../connection-manager.js';
 
 const mockQueryWithParams = jest.fn().mockResolvedValue({ recordset: [] });
 const mockConnect = jest.fn().mockResolvedValue(undefined);
 
-jest.mock('../../connection.js', () => ({
-	SqlServerConnection: jest.fn().mockImplementation(() => ({
-		connect: mockConnect,
-		queryWithParams: mockQueryWithParams,
+const mockConnection = {
+	connect: mockConnect,
+	queryWithParams: mockQueryWithParams,
+};
+
+jest.mock('../../connection-manager.js', () => ({
+	ConnectionManager: jest.fn().mockImplementation(() => ({
+		getConnection: jest.fn().mockResolvedValue(mockConnection),
 	})),
 }));
 
@@ -16,8 +20,8 @@ describe('ListTablesTool', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		const mockConnection = new SqlServerConnection({} as any);
-		tool = new ListTablesTool(mockConnection);
+		const mockManager = new ConnectionManager({} as any);
+		tool = new ListTablesTool(mockManager);
 	});
 
 	it('should have correct name and description', () => {
@@ -57,6 +61,7 @@ describe('ListTablesTool', () => {
 		const schema = tool.getInputSchema();
 		expect(schema.type).toBe('object');
 		expect(schema.properties.schema).toBeDefined();
+		expect(schema.properties.database).toBeDefined();
 		expect(schema.required).toEqual([]);
 	});
 });

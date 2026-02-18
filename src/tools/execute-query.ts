@@ -4,64 +4,67 @@ import { ParameterValidator } from '../validation.js';
 import { ErrorHandler } from '../errors.js';
 
 export class ExecuteQueryTool extends BaseTool {
-  getName(): string {
-    return 'execute_query';
-  }
+	getName(): string {
+		return 'execute_query';
+	}
 
-  getDescription(): string {
-    return 'Execute a read-only SELECT query against the database';
-  }
+	getDescription(): string {
+		return 'Execute a read-only SELECT query against the database';
+	}
 
-  getInputSchema(): any {
-    return {
-      type: 'object',
-      properties: {
-        query: {
-          type: 'string',
-          description: 'SQL SELECT query to execute (read-only operations only)',
-        },
-        limit: {
-          type: 'number',
-          description: 'Maximum number of rows to return (optional)',
-          minimum: 1,
-          maximum: 10000,
-        },
-      },
-      required: ['query'],
-    };
-  }
+	getInputSchema(): any {
+		return {
+			type: 'object',
+			properties: {
+				query: {
+					type: 'string',
+					description: 'SQL SELECT query to execute (read-only operations only)',
+				},
+				limit: {
+					type: 'number',
+					description: 'Maximum number of rows to return (optional)',
+					minimum: 1,
+					maximum: 10000,
+				},
+				database: {
+					type: 'string',
+					description: 'Target database name (optional, uses default if not specified)',
+				},
+			},
+			required: ['query'],
+		};
+	}
 
-  async execute(params: { query: string; limit?: number }): Promise<QueryResult> {
-    const validatedParams = ParameterValidator.validateQueryParameters(params);
-    const { query, limit } = validatedParams;
-    const maxRows = limit;
+	async execute(params: { query: string; limit?: number; database?: string }): Promise<QueryResult> {
+		const database = params.database ? ParameterValidator.validateDatabaseName(params.database) : undefined;
+		const validatedParams = ParameterValidator.validateQueryParameters(params);
+		const { query, limit } = validatedParams;
+		const maxRows = limit;
 
-    const startTime = Date.now();
-    
-    try {
-      await this.connection.connect();
+		const startTime = Date.now();
 
-      const result = await this.executeQuery(query, maxRows);
-      const executionTime = Date.now() - startTime;
+		try {
+			const connection = await this.connectionManager.getConnection(database);
+			await connection.connect();
 
-      // Extract column names
-      const columns = result.length > 0 ? Object.keys(result[0]) : [];
-      
-      // Convert to rows array
-      const rows = result.map(row => columns.map(col => row[col]));
+			const result = await this.executeQuery(query, maxRows, database);
+			const executionTime = Date.now() - startTime;
 
-      return {
-        columns,
-        rows,
-        rowCount: result.length,
-        executionTime,
-      };
-    } catch (error) {
-      const executionTime = Date.now() - startTime;
-      const mcpError = ErrorHandler.handleSqlServerError(error);
-      // Add execution time to error message
-      mcpError.message = `${mcpError.message} (execution time: ${executionTime}ms)`;
-      throw mcpError;
-    }
-  }
+			const columns = result.length > 0 ? Object.keys(result[0]) : [];
+
+			const rows = result.map(row => columns.map(col => row[col]));
+
+			return {
+				columns,
+				rows,
+				rowCount: result.length,
+				executionTime,
+			};
+		} catch (error) {
+			const executionTime = Date.now() - startTime;
+			const mcpError = ErrorHandler.handleSqlServerError(error);
+			mcpError.message = `${mcpError.message} (execution time: ${executionTime}ms)`;
+			throw mcpError;
+		}
+	}
 }

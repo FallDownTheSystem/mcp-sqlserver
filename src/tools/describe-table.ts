@@ -24,12 +24,17 @@ export class DescribeTableTool extends BaseTool {
 					description: 'Schema name (optional, defaults to dbo)',
 					default: 'dbo',
 				},
+				database: {
+					type: 'string',
+					description: 'Target database name (optional, uses default if not specified)',
+				},
 			},
 			required: ['table_name'],
 		};
 	}
 
-	async execute(params: { table_name: string; schema?: string }): Promise<ColumnInfo[]> {
+	async execute(params: { table_name: string; schema?: string; database?: string }): Promise<ColumnInfo[]> {
+		const database = params.database ? ParameterValidator.validateDatabaseName(params.database) : undefined;
 		const validatedParams = ParameterValidator.validateTableDescriptionParameters(params);
 		const { table_name, schema } = validatedParams;
 
@@ -60,6 +65,6 @@ export class DescribeTableTool extends BaseTool {
 			ORDER BY ORDINAL_POSITION
 		`;
 
-		return await this.executeSafeQueryWithParams<ColumnInfo>(query, queryParams);
+		return await this.executeSafeQueryWithParams<ColumnInfo>(query, queryParams, database);
 	}
 }

@@ -12,7 +12,7 @@ async function runServer() {
       CallToolRequestSchema,
       ListToolsRequestSchema,
     } = await import('@modelcontextprotocol/sdk/types.js');
-    const { SqlServerConnection } = await import('./connection.js');
+    const { ConnectionManager } = await import('./connection-manager.js');
     const { ConnectionConfigSchema } = await import('./types.js');
     const {
       ListDatabasesTool,
@@ -32,7 +32,7 @@ async function runServer() {
 
     class SqlServerMCPServer {
       private server: typeof Server.prototype;
-      private connection!: typeof SqlServerConnection.prototype;
+      private connectionManager!: InstanceType<typeof ConnectionManager>;
       private tools: Map<string, any> = new Map();
 
       constructor() {
@@ -69,8 +69,8 @@ async function runServer() {
       }
 
       private async cleanup() {
-        if (this.connection) {
-          await this.connection.disconnect();
+        if (this.connectionManager) {
+          await this.connectionManager.closeAll();
         }
       }
 
@@ -138,20 +138,18 @@ async function runServer() {
         ];
 
         for (const ToolClass of toolClasses) {
-          const tool = new ToolClass(this.connection, maxRows);
+          const tool = new ToolClass(this.connectionManager, maxRows);
           this.tools.set(tool.getName(), tool);
         }
       }
 
       async initialize(config: any) {
         try {
-          this.connection = new SqlServerConnection(config);
-          
-          // Don't connect immediately in MCP mode - defer connection until first tool use
-          // This prevents the server from failing startup if SQL Server is temporarily unavailable
+          this.connectionManager = new ConnectionManager(config);
+
           console.error(`MCP SQL Server initialized for ${config.server}:${config.port || 1433}`);
           console.error(`Database: ${config.database || 'default'}, User: ${config.user}`);
-          
+
           this.initializeTools(config.maxRows || 1000);
         } catch (error) {
           console.error(`Initialization failed:`, error);

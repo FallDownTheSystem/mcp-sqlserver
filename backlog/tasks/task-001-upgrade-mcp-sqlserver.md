@@ -3,7 +3,7 @@ id: task-001-upgrade-mcp-sqlserver
 title: Upgrade and fix MCP SQL Server
 status: "To Do"
 created_date: '2026-02-18 13:41'
-updated_date: '2026-02-18 13:41'
+updated_date: '2026-02-18 15:16'
 dependencies:
 subtasks:
   - task-002-upgrade-mcp-sdk
@@ -13,6 +13,7 @@ subtasks:
   - task-006-add-retry-logic
   - task-007-fix-version-mismatch
   - task-008-add-tests
+  - task-009-add-database-parameter
 ---
 
 ## Description

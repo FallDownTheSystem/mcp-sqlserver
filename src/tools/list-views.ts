@@ -19,12 +19,17 @@ export class ListViewsTool extends BaseTool {
 					type: 'string',
 					description: 'Schema name to filter views (optional)',
 				},
+				database: {
+					type: 'string',
+					description: 'Target database name (optional, uses default if not specified)',
+				},
 			},
 			required: [],
 		};
 	}
 
-	async execute(params: { schema?: string }): Promise<ViewInfo[]> {
+	async execute(params: { schema?: string; database?: string }): Promise<ViewInfo[]> {
+		const database = params.database ? ParameterValidator.validateDatabaseName(params.database) : undefined;
 		const { schema } = params;
 
 		const queryParams: QueryParam[] = [];
@@ -48,6 +53,6 @@ export class ListViewsTool extends BaseTool {
 
 		query += ' ORDER BY TABLE_SCHEMA, TABLE_NAME';
 
-		return await this.executeSafeQueryWithParams<ViewInfo>(query, queryParams);
+		return await this.executeSafeQueryWithParams<ViewInfo>(query, queryParams, database);
 	}
 }
