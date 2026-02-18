@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 
+import { createRequire } from 'module';
 import { ConnectionConfigSchema } from './types.js';
+
+const require = createRequire(import.meta.url);
+const { version } = require('../package.json') as { version: string };
 
 function showHelp() {
   console.log(`
@@ -61,8 +65,7 @@ For more information, visit: https://github.com/bilims/mcp-sqlserver
 }
 
 function showVersion() {
-  // Read version from package.json
-  console.log('2.0.1');
+  console.log(version);
 }
 
 function validateEnvironment(): boolean {

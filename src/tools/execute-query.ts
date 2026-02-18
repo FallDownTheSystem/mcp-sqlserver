@@ -40,16 +40,9 @@ export class ExecuteQueryTool extends BaseTool {
     
     try {
       await this.connection.connect();
-      
-      // Override the maxRows for this specific query
-      const originalMaxRows = this.maxRows;
-      this.maxRows = maxRows;
-      
-      const result = await this.executeQuery(query);
-      const executionTime = Date.now() - startTime;
 
-      // Restore original maxRows
-      this.maxRows = originalMaxRows;
+      const result = await this.executeQuery(query, maxRows);
+      const executionTime = Date.now() - startTime;
 
       // Extract column names
       const columns = result.length > 0 ? Object.keys(result[0]) : [];

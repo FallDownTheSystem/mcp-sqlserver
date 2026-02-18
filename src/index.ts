@@ -26,6 +26,9 @@ async function runServer() {
       TestConnectionTool,
     } = await import('./tools/index.js');
     const { ErrorHandler } = await import('./errors.js');
+    const { createRequire } = await import('module');
+    const require = createRequire(import.meta.url);
+    const { version: pkgVersion } = require('../package.json') as { version: string };
 
     class SqlServerMCPServer {
       private server: typeof Server.prototype;
@@ -36,7 +39,7 @@ async function runServer() {
         this.server = new Server(
           {
             name: 'mcp-sqlserver',
-            version: '2.0.3',
+            version: pkgVersion,
           },
           {
             capabilities: {

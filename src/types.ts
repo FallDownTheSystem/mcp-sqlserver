@@ -1,4 +1,11 @@
+import type { ISqlType } from 'mssql';
 import { z } from 'zod';
+
+export interface QueryParam {
+	name: string;
+	type?: ISqlType;
+	value: unknown;
+}
 
 export const ConnectionConfigSchema = z.object({
   server: z.string(),
