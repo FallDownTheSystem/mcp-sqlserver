@@ -74,6 +74,12 @@ describe('QueryValidator', () => {
 			expect(QueryValidator.validateQuery('Select Name From Users')).toEqual({ isValid: true });
 		});
 
+		it('should not false-positive on column names containing forbidden substrings', () => {
+			expect(QueryValidator.validateQuery('SELECT create_date FROM sys.databases')).toEqual({ isValid: true });
+			expect(QueryValidator.validateQuery('SELECT updated_at FROM Users')).toEqual({ isValid: true });
+			expect(QueryValidator.validateQuery('SELECT is_deleted FROM Items')).toEqual({ isValid: true });
+		});
+
 		it('should detect SQL comment injection (--)', () => {
 			const result = QueryValidator.validateQuery('SELECT * FROM Users -- comment here');
 			expect(result.isValid).toBe(false);

@@ -17,8 +17,6 @@ export class QueryValidator {
     'TRUNCATE',
     'EXEC',
     'EXECUTE',
-    'SP_',
-    'XP_',
     'OPENROWSET',
     'OPENDATASOURCE',
     'BULK',
@@ -26,6 +24,11 @@ export class QueryValidator {
     'GRANT',
     'REVOKE',
     'DENY',
+  ];
+
+  private static readonly FORBIDDEN_PREFIXES = [
+    'SP_',
+    'XP_',
   ];
 
   static validateQuery(query: string): { isValid: boolean; error?: string } {
@@ -36,23 +39,34 @@ export class QueryValidator {
     }
 
     // Check if query starts with allowed statement
-    const startsWithAllowed = this.ALLOWED_STATEMENTS.some(stmt => 
+    const startsWithAllowed = this.ALLOWED_STATEMENTS.some(stmt =>
       normalizedQuery.startsWith(stmt)
     );
 
     if (!startsWithAllowed) {
-      return { 
-        isValid: false, 
-        error: `Query must start with one of: ${this.ALLOWED_STATEMENTS.join(', ')}` 
+      return {
+        isValid: false,
+        error: `Query must start with one of: ${this.ALLOWED_STATEMENTS.join(', ')}`
       };
     }
 
-    // Check for forbidden keywords
+    // Check for forbidden keywords (whole-word match to avoid false positives like create_date)
     for (const forbidden of this.FORBIDDEN_KEYWORDS) {
-      if (normalizedQuery.includes(forbidden)) {
-        return { 
-          isValid: false, 
-          error: `Forbidden keyword detected: ${forbidden}` 
+      const pattern = new RegExp(`\\b${forbidden}\\b`);
+      if (pattern.test(normalizedQuery)) {
+        return {
+          isValid: false,
+          error: `Forbidden keyword detected: ${forbidden}`
+        };
+      }
+    }
+
+    // Check for forbidden prefixes (SP_, XP_)
+    for (const prefix of this.FORBIDDEN_PREFIXES) {
+      if (normalizedQuery.includes(prefix)) {
+        return {
+          isValid: false,
+          error: `Forbidden keyword detected: ${prefix}`
         };
       }
     }
