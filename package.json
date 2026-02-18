@@ -1,11 +1,12 @@
 {
   "name": "@falldownthesystem/mcp-sqlserver",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "A read-only Model Context Protocol (MCP) server for Microsoft SQL Server that enables AI agents to safely explore and query SQL Server databases",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "mcp-sqlserver": "dist/index.js"
+    "mcp-sqlserver": "dist/index.js",
+    "sqlq": "dist/cli-app.js"
   },
   "files": [
     "dist",
@@ -19,6 +20,7 @@
     "build": "tsc",
     "prepublishOnly": "npm run build",
     "dev": "tsx src/index.ts",
+    "cli-dev": "tsx src/cli-app.ts",
     "start": "node dist/index.js",
     "setup": "npm run build && echo 'Setup complete! See README.md for configuration instructions.'",
     "test-connection": "node dist/index.js --help || echo 'Please set environment variables. See README.md for details.'",
@@ -53,7 +55,11 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^14.0.0",
+    "dotenv": "^17.3.1",
     "mssql": "^11.0.1",
+    "picocolors": "^1.1.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {
