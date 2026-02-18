@@ -1,6 +1,6 @@
 {
-  "name": "@bilims/mcp-sqlserver",
-  "version": "2.0.3",
+  "name": "@falldownthesystem/mcp-sqlserver",
+  "version": "2.1.0",
   "description": "A read-only Model Context Protocol (MCP) server for Microsoft SQL Server that enables AI agents to safely explore and query SQL Server databases",
   "type": "module",
   "main": "dist/index.js",
@@ -40,13 +40,16 @@
   ],
   "author": "Bilims",
   "license": "MIT",
-  "homepage": "https://github.com/bilims/mcp-sqlserver",
+  "homepage": "https://github.com/FallDownTheSystem/mcp-sqlserver",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bilims/mcp-sqlserver.git"
+    "url": "https://github.com/FallDownTheSystem/mcp-sqlserver.git"
   },
   "bugs": {
-    "url": "https://github.com/bilims/mcp-sqlserver/issues"
+    "url": "https://github.com/FallDownTheSystem/mcp-sqlserver/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.0",
