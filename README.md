@@ -1,226 +1,52 @@
 # MCP SQL Server
 
-A read-only Model Context Protocol (MCP) server for Microsoft SQL Server that enables AI agents to safely explore and query SQL Server databases.
+A read-only [MCP](https://modelcontextprotocol.io/) server for Microsoft SQL Server. Gives AI agents safe access to explore and query your databases.
 
-## Quick Start
+> Forked from [`@bilims/mcp-sqlserver`](https://github.com/AhmedBilims/mcp-sqlserver) by Onur Keskin. This fork adds per-tool database targeting, a connection pool manager, and the `sqlq` CLI.
 
-### Step 1: Install the Package
-
-```bash
-# Global installation (recommended)
-npm install -g @bilims/mcp-sqlserver
-
-# Verify installation
-mcp-sqlserver --version
-```
-
-### Step 2: Configure Your SQL Server Connection
-
-Choose your SQL Server type and follow the configuration:
-
-#### Azure SQL Database
-```bash
-export SQLSERVER_HOST="your-server.database.windows.net"
-export SQLSERVER_USER="your-username"
-export SQLSERVER_PASSWORD="your-password"
-export SQLSERVER_DATABASE="your-database"
-export SQLSERVER_ENCRYPT="true"
-export SQLSERVER_TRUST_CERT="false"
-```
-
-#### On-Premises SQL Server
-```bash
-export SQLSERVER_HOST="your-sql-server.company.com"
-export SQLSERVER_USER="your-username"
-export SQLSERVER_PASSWORD="your-password"
-export SQLSERVER_DATABASE="your-database"
-export SQLSERVER_ENCRYPT="true"
-export SQLSERVER_TRUST_CERT="true"  # For self-signed certificates
-```
-
-#### Local SQL Server Express
-```bash
-export SQLSERVER_HOST="localhost\\SQLEXPRESS"
-export SQLSERVER_USER="sa"
-export SQLSERVER_PASSWORD="your-password"
-export SQLSERVER_DATABASE="master"
-export SQLSERVER_ENCRYPT="false"
-export SQLSERVER_TRUST_CERT="true"
-```
-
-### Step 3: Test the Connection
+## Install
 
 ```bash
-# Test your configuration
-mcp-sqlserver --help
-
-# Quick connection test (press Ctrl+C to exit)
-mcp-sqlserver
+npm install -g @falldownthesystem/mcp-sqlserver
 ```
 
-### Step 4: Add to Claude Desktop
-
-1. **Find your Claude Desktop config file:**
-   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-
-2. **Add the MCP server configuration:**
-```json
-{
-  "mcpServers": {
-    "sqlserver": {
-      "command": "mcp-sqlserver",
-      "env": {
-        "SQLSERVER_HOST": "your-server.database.windows.net",
-        "SQLSERVER_USER": "your-username",
-        "SQLSERVER_PASSWORD": "your-password",
-        "SQLSERVER_DATABASE": "your-database",
-        "SQLSERVER_ENCRYPT": "true",
-        "SQLSERVER_TRUST_CERT": "false"
-      }
-    }
-  }
-}
-```
-
-3. **Restart Claude Desktop**
-
-### Step 5: Start Exploring!
-
-Try these commands in Claude Desktop:
-- `"Test the SQL Server connection"`
-- `"List all databases on the server"`
-- `"Show me the tables in [database name]"`
-- `"Describe the structure of the Users table"`
-- `"Show me foreign key relationships"`
-
-## Features
-
-- **🔒 Read-only operations**: Only SELECT queries allowed, with comprehensive security validation
-- **🗄️ Schema discovery**: Explore databases, tables, views, relationships, and metadata  
-- **📊 Data exploration**: Execute safe queries with built-in limits and timeouts
-- **🔐 Enterprise-ready**: Encrypted connections with certificate trust for production environments
-- **🛡️ Security-first**: Query validation, SQL injection protection, and access controls
-
-## Available Tools
-
-### Schema Discovery
-- `list_databases` - List all databases on the SQL Server instance
-- `list_tables` - List tables in a database or schema
-- `list_views` - List views in a database or schema
-- `describe_table` - Get detailed table schema including columns, data types, and constraints
-
-### Relationship Analysis
-- `get_foreign_keys` - Get foreign key relationships for tables
-- `get_table_stats` - Get table statistics including row counts and size information
-
-### Data Exploration  
-- `execute_query` - Execute read-only SELECT queries with safety validation
-- `get_server_info` - Get SQL Server version, edition, and configuration details
-
-## Common Commands for Claude Desktop
-
-Once your MCP server is configured, try these natural language commands:
-
-### Getting Started Commands
-```
-"Test the SQL Server connection"
-"Show me server information"
-"List all databases on this server"
-"What tables are in the [database name] database?"
-```
-
-### Database Exploration
-```
-"Describe the structure of the Users table"
-"Show me foreign key relationships in this database"
-"What are the largest tables by row count?"
-"Give me a sample of data from the Orders table"
-```
-
-### Advanced Analysis
-```
-"Help me understand the relationship between Orders and Customers"
-"Show me all lookup tables in this database"
-"What columns contain date/time information?"
-"Find tables that might contain user authentication data"
-```
-
-### Custom Queries
-```
-"Run this query: SELECT TOP 10 * FROM Products WHERE Price > 100"
-"Show me all customers created in the last 30 days"
-"What are the different product categories in the database?"
-```
-
-## Installation
+Or run it directly:
 
 ```bash
-npm install
-npm run build
+npx @falldownthesystem/mcp-sqlserver
 ```
 
-## Configuration
+This gives you two commands: `mcp-sqlserver` (the MCP server) and `sqlq` (a standalone CLI for querying from your terminal).
 
-The server is configured using environment variables:
+## Configure
 
-### Required
-- `SQLSERVER_USER` - SQL Server username
-- `SQLSERVER_PASSWORD` - SQL Server password
+Connection is configured through environment variables or CLI flags. At minimum you need a host, user, and password.
 
-### Optional
-- `SQLSERVER_HOST` - Server hostname (default: localhost)
-- `SQLSERVER_DATABASE` - Default database name
-- `SQLSERVER_PORT` - Port number (default: 1433)
-- `SQLSERVER_ENCRYPT` - Enable encryption (default: true)
-- `SQLSERVER_TRUST_CERT` - Trust server certificate (default: true)
-- `SQLSERVER_CONNECTION_TIMEOUT` - Connection timeout in ms (default: 30000)
-- `SQLSERVER_REQUEST_TIMEOUT` - Request timeout in ms (default: 60000)
-- `SQLSERVER_MAX_ROWS` - Maximum rows per query (default: 1000)
-
-## Usage
-
-### Environment Variables
 ```bash
 export SQLSERVER_HOST="your-server.database.windows.net"
 export SQLSERVER_USER="your-username"
 export SQLSERVER_PASSWORD="your-password"
 export SQLSERVER_DATABASE="your-database"
-export SQLSERVER_ENCRYPT="true"
-export SQLSERVER_TRUST_CERT="true"
 ```
 
-### Running the Server
-```bash
-npm start
-```
+You can also set these optional variables:
 
-## Installation Options
+| Variable | Default | Description |
+|---|---|---|
+| `SQLSERVER_PORT` | `1433` | Port number |
+| `SQLSERVER_ENCRYPT` | `true` | TLS encryption |
+| `SQLSERVER_TRUST_CERT` | `true` | Trust the server certificate (set `false` for Azure) |
+| `SQLSERVER_CONNECTION_TIMEOUT` | `30000` | Connection timeout (ms) |
+| `SQLSERVER_REQUEST_TIMEOUT` | `60000` | Query timeout (ms) |
+| `SQLSERVER_MAX_ROWS` | `1000` | Max rows returned per query |
 
-### Option 1: Global Installation (Recommended)
-
-```bash
-npm install -g @bilims/mcp-sqlserver
-```
-
-### Option 2: Local Installation
-
-```bash
-npm install @bilims/mcp-sqlserver
-npx mcp-sqlserver
-```
-
-### Option 3: Run with npx (No Installation)
-
-```bash
-npx @bilims/mcp-sqlserver
-```
-
-## Integration Examples
+## MCP Integration
 
 ### Claude Desktop
 
-Add to your Claude Desktop configuration (`claude_desktop_config.json`):
+Add this to your `claude_desktop_config.json`:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -238,139 +64,142 @@ Add to your Claude Desktop configuration (`claude_desktop_config.json`):
 }
 ```
 
-### Claude Code CLI
+### Claude Code
 
 ```bash
-# Set environment variables
-export SQLSERVER_HOST="your-server"
-export SQLSERVER_USER="your-username"
-export SQLSERVER_PASSWORD="your-password"
-
-# Use with Claude Code
-claude mcp add sqlserver mcp-sqlserver
+claude mcp add sqlserver mcp-sqlserver \
+  -e SQLSERVER_HOST=your-server \
+  -e SQLSERVER_USER=your-username \
+  -e SQLSERVER_PASSWORD=your-password
 ```
 
-### VSCode with MCP Extension
+## Available Tools
 
-Install the MCP extension for VSCode and add the server configuration.
+All queries are validated to be read-only. SELECT, WITH, SHOW, DESCRIBE, and EXPLAIN are allowed. Everything else is blocked.
 
-## Security Features
+| Tool | What it does |
+|---|---|
+| `list_databases` | List all databases on the server |
+| `list_tables` | List tables in a database or schema |
+| `list_views` | List views in a database or schema |
+| `describe_table` | Column names, types, nullability, defaults |
+| `get_foreign_keys` | Foreign key relationships for a table |
+| `get_table_stats` | Row counts and size info |
+| `execute_query` | Run a read-only SELECT query |
+| `get_server_info` | Server version, edition, config |
 
-### Query Validation
-- Only SELECT, WITH, SHOW, DESCRIBE, and EXPLAIN statements allowed
-- Comprehensive blacklist of dangerous keywords (INSERT, UPDATE, DELETE, DROP, etc.)
-- SQL injection pattern detection
-- Automatic query sanitization
+Every tool accepts an optional `database` parameter, so you can target a specific database without changing your connection config.
 
-### Connection Security
-- TLS/SSL encryption enabled by default
-- Server certificate trust options for enterprise environments
-- Connection pooling with timeout controls
-- Configurable request timeouts
+## sqlq CLI
 
-### Result Limits
-- Maximum row limits per query (configurable)
-- Automatic TOP clause injection for SELECT queries
-- Query execution time tracking
-- Memory usage protection
+`sqlq` is a standalone command-line tool that wraps the same MCP tools into a terminal interface. It connects to your SQL Server using the same environment variables and lets you explore databases, inspect schemas, and run queries directly from your shell.
 
-## Example Queries
+### As an Agent Skill
 
-Once connected, you can use the tools through your MCP client:
+If you'd rather not run an MCP server, you can use `sqlq` through an [Agent Skill](https://agentskills.io) instead. A SKILL.md file gives any compatible coding agent the same database access by calling the CLI directly. The repo includes a reference skill at [`examples/sqlq-skill.md`](examples/sqlq-skill.md) that covers all commands, output modes, connection options, and error handling. Copy it into your project or global skills directory.
 
-```typescript
-// List all databases
-await callTool("list_databases", {});
+### Usage
 
-// List tables in a specific schema
-await callTool("list_tables", { schema: "dbo" });
-
-// Get table schema details
-await callTool("describe_table", { 
-  table_name: "Users", 
-  schema: "dbo" 
-});
-
-// Execute a read-only query
-await callTool("execute_query", { 
-  query: "SELECT TOP 10 * FROM Users WHERE active = 1",
-  limit: 10
-});
-
-// Get foreign key relationships
-await callTool("get_foreign_keys", { 
-  table_name: "Orders" 
-});
+```bash
+# Connection uses the same SQLSERVER_* env vars, or you can override with flags
+sqlq --host myserver --user sa --password secret -d mydb <command>
 ```
+
+### Commands
+
+```bash
+sqlq databases              # List all databases (alias: dbs)
+sqlq tables                 # List tables (-s to filter by schema)
+sqlq views                  # List views (-s to filter by schema)
+sqlq describe <table>       # Show column details for a table
+sqlq foreign-keys [table]   # Show foreign key relationships (alias: fk)
+sqlq stats [table]          # Row counts and table sizes
+sqlq server-info            # Server version and edition (alias: info)
+sqlq test                   # Test your connection
+sqlq query "SELECT ..."     # Run a read-only query
+sqlq query -f query.sql     # Run SQL from a file
+sqlq config                 # Show resolved connection config
+```
+
+### Output Formats
+
+By default, `sqlq` renders colored tables in your terminal. You can change this:
+
+```bash
+sqlq tables --json          # Raw JSON (good for piping to jq)
+sqlq tables --plain         # Tab-separated plain text (good for scripting)
+```
+
+When stdout isn't a TTY (piped or redirected), it automatically falls back to plain text.
+
+### Global Flags
+
+```
+-d, --database <name>    Target database
+--host <host>            Override SQLSERVER_HOST
+--user <user>            Override SQLSERVER_USER
+--password <password>    Override SQLSERVER_PASSWORD
+--password-stdin         Read password from stdin
+--port <port>            Override SQLSERVER_PORT
+--encrypt / --no-encrypt Toggle TLS encryption
+--trust-cert / --no-trust-cert  Toggle certificate trust
+--timeout <ms>           Connection timeout
+--max-rows <n>           Max rows returned
+--json                   JSON output
+--plain                  Plain text output
+```
+
+### Examples
+
+```bash
+# List tables in the dbo schema
+sqlq -d AdventureWorks tables -s dbo
+
+# Describe a table
+sqlq -d AdventureWorks describe Product
+
+# Run a query and pipe to jq
+sqlq -d AdventureWorks query "SELECT TOP 5 Name, ListPrice FROM Production.Product" --json | jq '.rows'
+
+# Pipe password securely
+echo "$DB_PASSWORD" | sqlq --password-stdin databases
+
+# Read SQL from a file
+sqlq -d mydb query -f reports/monthly.sql
+```
+
+## Security
+
+All queries go through multiple validation layers before reaching the database:
+
+- Only SELECT/WITH/SHOW/DESCRIBE/EXPLAIN statements are allowed
+- Dangerous keywords (INSERT, UPDATE, DELETE, DROP, EXEC, etc.) are blocked
+- SQL injection patterns are detected and rejected
+- A TOP clause is automatically added to queries that don't have one
+- TLS encryption is on by default
+
+The user account only needs `CONNECT` and `SELECT` permissions.
 
 ## Development
 
 ```bash
-# Install dependencies
-npm install
-
-# Build the project
-npm run build
-
-# Run in development mode
-npm run dev
-
-# Run linting
-npm run lint
-
-# Run tests
-npm test
+npm install          # Install dependencies
+npm run build        # Compile TypeScript
+npm run dev          # Run MCP server with tsx
+npm run cli-dev      # Run sqlq CLI with tsx
+npm run lint         # ESLint
+npm test             # Jest
 ```
 
 ## Troubleshooting
 
-### Connection Issues
-1. Verify server hostname and port
-2. Check if encryption/certificate settings match your SQL Server configuration
-3. Ensure user has appropriate read permissions
-4. Test connection using SQL Server Management Studio first
+If you can't connect, check these things first:
 
-### Permission Issues
-The user account needs at minimum:
-- `CONNECT` permission to the database
-- `SELECT` permission on tables/views you want to query
-- Access to system views for metadata queries
-
-### Common SQL Server Configurations
-
-#### Azure SQL Database
-```bash
-export SQLSERVER_HOST="your-server.database.windows.net"
-export SQLSERVER_ENCRYPT="true"
-export SQLSERVER_TRUST_CERT="false"
-```
-
-#### On-premises SQL Server with self-signed certificates
-```bash
-export SQLSERVER_HOST="sql-server.company.com"
-export SQLSERVER_ENCRYPT="true" 
-export SQLSERVER_TRUST_CERT="true"
-```
+1. Verify the hostname and port are correct
+2. Make sure your encryption settings match the server (Azure needs `SQLSERVER_ENCRYPT=true`, `SQLSERVER_TRUST_CERT=false`)
+3. Confirm the user has `CONNECT` and `SELECT` permissions
+4. Test with SQL Server Management Studio or `sqlcmd` to rule out network issues
 
 ## License
 
 MIT
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## Support
-
-For issues and questions:
-- Check the troubleshooting section above
-- Review SQL Server connection documentation
-- Ensure MCP client compatibility
-
----
-
-Built with the [Model Context Protocol SDK](https://github.com/modelcontextprotocol/typescript-sdk) for seamless AI integration.
